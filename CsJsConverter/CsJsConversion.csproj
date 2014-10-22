@@ -72,6 +72,7 @@
     <Compile Include="JsContentGeneratorBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Config\ConfigurationHelper.cs" />
+    <Compile Include="Utils\ConversionParameters.cs" />
     <Compile Include="Utils\CsJsCompilationException.cs" />
     <Compile Include="Utils\CsJsConverterEngine.cs" />
     <Compile Include="Utils\EnvironmentInfo.cs" />

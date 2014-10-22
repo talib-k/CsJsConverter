@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Optimization;
+using System.Web.Razor;
 using CsJsConversion.Config;
 using CsJsConversion.Utils;
 
@@ -15,8 +16,6 @@ namespace CsJsConversion.FileUtils
 {
     public class CsJsFileTransform
     {        
-        private const string SourceFileExtenstion = "cshtml";
-        private const string SourceFilePattern = "*." + SourceFileExtenstion;
         private const string TargetFileExtension = "js";
         private const string TargetFilePattern = "*." + TargetFileExtension;
 
@@ -94,7 +93,7 @@ namespace CsJsConversion.FileUtils
 
             var fileInfo = new FileInfo(physicalFileName);
 
-            return (fileInfo.Extension.Replace(".", string.Empty) == SourceFileExtenstion);
+            return (RazorCodeLanguage.Languages.ContainsKey(fileInfo.Extension.Replace(".", string.Empty)));
         }
 
         public string GetConvertedFileName(string sourceFileName, bool physicalPath = false)
@@ -128,9 +127,13 @@ namespace CsJsConversion.FileUtils
             {
                 outputDirectoryInfo.Delete();
             }
-            foreach (var file in Directory.GetFiles(directory.FullName, SourceFilePattern))
+            foreach (var extension in RazorCodeLanguage.Languages.Keys)
             {
-                Convert(new FileInfo(file), configuration, outputDirectory);
+                var sourceFilePattern = "*." + extension;
+                foreach (var file in Directory.GetFiles(directory.FullName, sourceFilePattern))
+                {
+                    Convert(new FileInfo(file), configuration, outputDirectory);
+                }
             }
         }
 
@@ -143,7 +146,8 @@ namespace CsJsConversion.FileUtils
             using (var reader = new StreamReader(sourceFile.FullName))
             using (var writer = File.CreateText(outputPath))
             {
-                writer.Write(CsJsConverterEngine.Convert(reader.ReadToEnd(), configuration));
+                var converterConfig = ConversionParameters.CreateForFile(sourceFile, configuration);
+                writer.Write(CsJsConverterEngine.Convert(reader.ReadToEnd(), converterConfig));
             }
         }
 

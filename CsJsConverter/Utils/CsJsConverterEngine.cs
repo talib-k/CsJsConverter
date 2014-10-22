@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Configuration;
@@ -25,31 +26,30 @@ namespace CsJsConversion.Utils
         private const string NamespaceForDynamicClasses = "CsJsConverter.GeneratedCode";
         private const string DynamicClassFullName = NamespaceForDynamicClasses + "." + DynamicallyGeneratedClassName;
 
-        public static string Convert(string template, Configuration configuration)
+        public static string Convert(string template, ConversionParameters configuration)
         {
             if (string.IsNullOrEmpty(template))
             {
                 return string.Empty;
             }
 
-            var baseClass = GetBaseClass(configuration);
+            var baseClass = configuration.BaseClass;
 
-            var language = new CSharpRazorCodeLanguage();
-            var host = new RazorEngineHost(language)
+            var host = new RazorEngineHost(configuration.GetCodeLanguage())
             {
                 DefaultBaseClass = baseClass.FullName,
                 DefaultClassName = DynamicallyGeneratedClassName,
                 DefaultNamespace = NamespaceForDynamicClasses,
             };
-            AddImports(host, configuration);
+            AddImports(host, configuration.NamespacesToAdd);
             var engine = new RazorTemplateEngine(host);
 
-            var tr = ReadTemplateContent(template, IsRemoveScriptTagsSet(configuration));
+            var tr = ReadTemplateContent(template, configuration.RemoveScriptTags);
             var razorTemplate = engine.GenerateCode(tr);
 
             var compilerResults = Compile(razorTemplate.GeneratedCode,
-                                          GetCustomAssembliesToLoad(configuration),
-                                          IsLoadReferencedAssembliesSet(configuration));
+                                          configuration.CustomAssembliesToLoad,
+                                          configuration.LoadReferencedAssemblies);
 
             if (compilerResults.Errors.HasErrors)
             {
@@ -64,32 +64,62 @@ namespace CsJsConversion.Utils
 
         private static StringReader ReadTemplateContent(string template, bool removeScriptTags)
         {
-            const string startScriptTag = "<script>";
-            const string endScriptTag = "</script>";
             var result = template;
 
-            if(removeScriptTags &&
-                result.StartsWith(startScriptTag) &&
-                result.EndsWith(endScriptTag))
+            if(removeScriptTags)
             {
-                result = result.Remove(0, startScriptTag.Length);
-                result = result.Remove(result.Length - endScriptTag.Length);
+                result = RemoveScriptTags(result);
             }
             return new StringReader(result);
         }
 
-        private static bool IsRemoveScriptTagsSet(Configuration configuration)
+        private static string RemoveScriptTags(string template)
         {
-            if (configuration == null)
+            var result = string.Empty;
+            var lines = Regex.Split(template, "\r\n|\r|\n");
+
+            var openingScriptTagLine = FindOpeningScriptTag(lines);
+            var closingScriptTagLine = FindClosingScriptTag(lines);
+
+            if (openingScriptTagLine != -1 && closingScriptTagLine != -1)
             {
-                return true;
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (i != openingScriptTagLine && i != closingScriptTagLine)
+                    {
+                        result += lines[i] + Environment.NewLine;
+                    }
+                }
             }
-            var configSectionGroup = configuration.SectionGroups[CsJsSectionGroup.GroupName] as CsJsSectionGroup;
-            if (configSectionGroup == null || configSectionGroup.Conversion == null)
+            return result;
+        }
+
+        private static int FindOpeningScriptTag(string[] lines)
+        {
+            const string openingScriptTag = "<script>";
+            for (int i = 0; i < lines.Length; i++)
             {
-                return true;
+                var line = lines[i];
+                if (!string.IsNullOrEmpty(line) && !line.StartsWith("@"))
+                {
+                    return (line.Trim() == openingScriptTag) ? i : -1;
+                }
             }
-            return configSectionGroup.Conversion.Params.RemoveScriptTags;
+            return -1;
+        }
+
+        private static int FindClosingScriptTag(string[] lines)
+        {
+            const string closingScriptTag = "</script>";
+            for (int i = lines.Length - 1; i >= 0; i--)
+            {
+                var line = lines[i];
+                if (!string.IsNullOrEmpty(line))
+                {
+                    return (line.Trim() == closingScriptTag) ? i : -1;
+                }
+            }
+            return -1;
         }
 
         private static CompilerResults Compile(CodeCompileUnit unitToCompile, string[] assembliesToLoad, bool loadReferencedAssemblies)
@@ -137,105 +167,15 @@ namespace CsJsConversion.Utils
             }
         }
 
-        private static void AddImports(RazorEngineHost host, Configuration configuration)
+        private static void AddImports(RazorEngineHost host, string[] namespacesToAdd)
         {
             host.NamespaceImports.Add("System");
             host.NamespaceImports.Add("System.Web");
-            if (configuration != null)
+            foreach (var @namespace in namespacesToAdd)
             {
-                var configSection = configuration.SectionGroups[RazorWebSectionGroup.GroupName] as RazorWebSectionGroup;
-                if (configSection != null && configSection.Pages != null && configSection.Pages.Namespaces != null)
-                {
-                    foreach (NamespaceInfo @namespace in configSection.Pages.Namespaces)
-                    {
-                        host.NamespaceImports.Add(@namespace.Namespace);
-                    }
-                }
+                host.NamespaceImports.Add(@namespace);
             }
         }
 
-        private static Type GetBaseClass(Configuration configuration)
-        {
-            var defaultBaseClass = typeof(JsContentHelpersBase);
-            if (configuration == null)
-            {
-                return defaultBaseClass;
-            }
-            var configSection = configuration.SectionGroups[RazorWebSectionGroup.GroupName] as RazorWebSectionGroup;
-            if (configSection == null || configSection.Pages == null)
-            {
-                return defaultBaseClass;
-            }
-            var baseClassName = configSection.Pages.PageBaseType;
-            if (string.IsNullOrEmpty(baseClassName))
-            {
-                return defaultBaseClass;
-            }
-
-            var typeName = new TypeName(baseClassName);
-            var assembly = Assembly.Load(typeName.AssemblyName);
-            var baseClass = assembly.GetType(typeName.Name);
-            if (baseClass == null)
-            {
-                throw new ArgumentException(string.Format("Cannot locate base class {0}", baseClassName));
-            }
-            if (baseClass != typeof(JsContentGeneratorBase) && !baseClass.IsSubclassOf(typeof(JsContentGeneratorBase)))
-            {
-                throw new ArgumentException(string.Format("Base class {0} must be subclass of JsContentGeneratorBase", baseClassName));
-            }
-            return baseClass;
-        }
-
-        private static bool IsLoadReferencedAssembliesSet(Configuration configuration)
-        {
-            if (configuration == null)
-            {
-                return true;
-            }
-            var configSectionGroup = configuration.SectionGroups[CsJsSectionGroup.GroupName] as CsJsSectionGroup;
-            if (configSectionGroup == null || configSectionGroup.Conversion == null)
-            {
-                return true;
-            }
-            return configSectionGroup.Conversion.Assemblies.LoadReferencedAssemblies;
-        }
-
-        private static string[] GetCustomAssembliesToLoad(Configuration configuration)
-        {
-            if (configuration == null)
-            {
-                return new string[0];
-            }
-            var configSectionGroup = configuration.SectionGroups[CsJsSectionGroup.GroupName] as CsJsSectionGroup;
-            if (configSectionGroup == null || configSectionGroup.Conversion == null)
-            {
-                return new string[0];
-            }
-            return configSectionGroup.Conversion.Assemblies.List.Cast<CsJsConversionAssembliesSection.CsJsConversionAssembly>()
-                                                                     .Select(a => a.Name)
-                                                                     .ToArray();
-        }
-
-        private class TypeName
-        {
-            public TypeName(string name)
-            {
-                var index = name.LastIndexOf(',');
-                if (index > 0)
-                {
-                    Name = name.Substring(0, index).Trim();
-
-                    AssemblyName = new AssemblyName(name.Substring(index + 1).Trim());
-                }
-                else
-                {
-                    Name = name;
-                }
-            }
-
-            public string Name { get; private set; }
-
-            public AssemblyName AssemblyName { get; private set; }
-        }
     }
 }

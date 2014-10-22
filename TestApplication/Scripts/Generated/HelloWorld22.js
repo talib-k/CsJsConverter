@@ -1,5 +1,4 @@
-<script>
-
+    
 
 /*!
 ** Unobtrusive Ajax support library for jQuery
@@ -166,4 +165,3 @@
             });
         });
     }(jQuery));
-</script>

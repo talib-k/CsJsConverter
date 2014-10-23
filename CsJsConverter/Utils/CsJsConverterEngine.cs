@@ -39,12 +39,12 @@ namespace CsJsConversion.Utils
             {
                 DefaultBaseClass = baseClass.FullName,
                 DefaultClassName = DynamicallyGeneratedClassName,
-                DefaultNamespace = NamespaceForDynamicClasses,
+                DefaultNamespace = NamespaceForDynamicClasses
             };
             AddImports(host, configuration.NamespacesToAdd);
             var engine = new RazorTemplateEngine(host);
 
-            var tr = ReadTemplateContent(template, configuration.RemoveScriptTags);
+            var tr = ReadTemplateContent(template);
             var razorTemplate = engine.GenerateCode(tr);
 
             var compilerResults = Compile(razorTemplate.GeneratedCode,
@@ -59,18 +59,24 @@ namespace CsJsConversion.Utils
             var compiledAssembly = compilerResults.CompiledAssembly;
             var templateInstance = (JsContentGeneratorBase)compiledAssembly.CreateInstance(DynamicClassFullName);
 
-            return templateInstance.GetContent();
+            return ProcessResult(templateInstance.GetContent(), configuration.RemoveScriptTags);
         }
 
-        private static StringReader ReadTemplateContent(string template, bool removeScriptTags)
+        private static StringReader ReadTemplateContent(string template)
         {
             var result = template;
 
-            if(removeScriptTags)
+            return new StringReader(result);
+        }
+
+        private static string ProcessResult(string output, bool removeScriptTags)
+        {
+            var result = output;
+            if (removeScriptTags)
             {
                 result = RemoveScriptTags(result);
             }
-            return new StringReader(result);
+            return result;
         }
 
         private static string RemoveScriptTags(string template)

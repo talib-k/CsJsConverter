@@ -307,8 +307,6 @@
     <Content Include="Views\Web.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Views\Js\HelloWorld.csjs" />
-    <Content Include="Views\Js\Inner\HelloWorld2.csjs" />
     <None Include="Views\Js\HelloWorld22.cshtml" />
     <None Include="Views\Js\Web.config">
       <SubType>Designer</SubType>

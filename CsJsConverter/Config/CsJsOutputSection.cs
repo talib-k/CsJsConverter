@@ -29,5 +29,25 @@ namespace CsJsConversion.Config
                 outputDirectorySet = true;
             }
         }
+
+        private static readonly ConfigurationProperty sourceRootDirectoryCfg = new ConfigurationProperty("sourceRootDirectory",
+                                                                                                      typeof(string),
+                                                                                                      null,
+                                                                                                      ConfigurationPropertyOptions.IsRequired);
+
+        private bool sourceRootDirectorySet = false;
+        private string sourceRootDirectory;
+
+        [ConfigurationProperty("sourceRootDirectory", IsRequired = true, DefaultValue = null)]
+        public string SourceRootDirectory
+        {
+            get { return sourceRootDirectorySet ? sourceRootDirectory : (string)this[sourceRootDirectoryCfg]; }
+            set
+            {
+                sourceRootDirectory = value;
+                sourceRootDirectorySet = true;
+            }
+        }
+
     }
 }

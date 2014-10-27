@@ -14,14 +14,15 @@ using CsJsConversion.Utils;
 
 namespace CsJsConversion.FileUtils
 {
-    public class CsJsFileTransform
+    public class CsJsFileTransform : IDisposable
     {        
         private const string TargetFileExtension = "js";
         private const string TargetFilePattern = "*." + TargetFileExtension;
 
-        private readonly ConfigurationHelper configurationHelper = new ConfigurationHelper();
-
         private static readonly ConcurrentDictionary<string, object> LockConversion = new ConcurrentDictionary<string, object>();
+
+        private readonly ConfigurationHelper configurationHelper = new ConfigurationHelper();
+        private bool disposed;
 
         public void Convert(string path, bool isPhysicalPath = false)
         {
@@ -102,10 +103,28 @@ namespace CsJsConversion.FileUtils
                                         Path.GetDirectoryName(EnvironmentInfo.MapToPhysicalPath(sourceFileName)) :
                                         Path.GetDirectoryName(sourceFileName);
             var sourceDirectory = Path.GetDirectoryName(sourceFileName);
-            var tmpConfigurationHelper = new ConfigurationHelper();
-            var configuration = tmpConfigurationHelper.ReadConfiguration(physicalDirectory);
+            var configuration = configurationHelper.ReadConfiguration(physicalDirectory);
             var outputDirectory = OutputDirectory.Calculate(configuration, sourceDirectory, physicalPath);
             return GetConvertedFileName(Path.GetFileName(sourceFileName), outputDirectory);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+            if (disposing)
+            {
+                configurationHelper.Dispose();
+            }
+            disposed = true;
         }
 
         private void Convert(DirectoryInfo directory)

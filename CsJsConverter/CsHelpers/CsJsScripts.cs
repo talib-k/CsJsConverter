@@ -19,9 +19,11 @@ namespace CsJsConversion.CsHelpers
     {
         public static IHtmlString Url(string virtualPath)
         {
-            var fileTransform = new CsJsFileTransform();
-            fileTransform.RefreshConversion(virtualPath);
-            return Scripts.Url(fileTransform.GetConvertedFileName(virtualPath));
+            using (var fileTransform = new CsJsFileTransform())
+            {
+                fileTransform.RefreshConversion(virtualPath);
+                return Scripts.Url(fileTransform.GetConvertedFileName(virtualPath));
+            }
         }
 
         public static IHtmlString Render(params string[] paths)

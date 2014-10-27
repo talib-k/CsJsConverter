@@ -59,6 +59,7 @@
     <Compile Include="BaseClassMembers\CSharp.cs" />
     <Compile Include="BaseClassMembers\EnumInfo.cs" />
     <Compile Include="BaseClassMembers\MvcInfo.cs" />
+    <Compile Include="Config\ConfigFileMerger.cs" />
     <Compile Include="Config\CsJsConversionAssembliesSection.cs" />
     <Compile Include="Config\CsJsConversionParamsSection.cs" />
     <Compile Include="Config\CsJsConversionSectionGroup.cs" />

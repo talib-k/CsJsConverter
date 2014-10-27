@@ -17,6 +17,7 @@ namespace CsJsConversion.FileUtils
     public static class OutputDirectory
     {
         private const string DefaultFilesOutput = "~/Scripts/Generated";
+        private const string DefaultSourceRoot = "~/Views/Js";
 
         public static string Calculate(Configuration configuration, string sourceDirectory, bool physical)
         {
@@ -31,7 +32,7 @@ namespace CsJsConversion.FileUtils
             {
                 outputRoot = EnvironmentInfo.MapToPhysicalPath(outputRoot);
             }
-            var relativePath = GetRelativePath(tmpPath, Path.GetDirectoryName(configuration.FilePath));
+            var relativePath = GetRelativePath(tmpPath, GetSourceRootFromConfig(configuration));
             return Path.GetDirectoryName(Path.Combine(outputRoot, relativePath));
         }
 
@@ -48,6 +49,21 @@ namespace CsJsConversion.FileUtils
                 }
             }
             return DefaultFilesOutput;
+        }
+
+        private static string GetSourceRootFromConfig(Configuration configuration)
+        {
+            if (configuration != null)
+            {
+                var configSectionGroup = configuration.GetSectionGroup(CsJsSectionGroup.GroupName) as CsJsSectionGroup;
+                if (configSectionGroup != null &&
+                    configSectionGroup.Output != null &&
+                    !string.IsNullOrEmpty(configSectionGroup.Output.SourceRootDirectory))
+                {
+                    return EnvironmentInfo.MapToPhysicalPath(configSectionGroup.Output.SourceRootDirectory);
+                }
+            }
+            return EnvironmentInfo.MapToPhysicalPath(DefaultSourceRoot);
         }
 
         private static string GetRelativePath(string filespec, string folder)

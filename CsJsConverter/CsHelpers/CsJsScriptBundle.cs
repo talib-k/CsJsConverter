@@ -23,18 +23,19 @@ namespace CsJsConversion.CsHelpers
 
         public override IEnumerable<FileInfo> EnumerateFiles(BundleContext context)
         {
-            var fileTransform = new CsJsFileTransform();
-
-            foreach (var sourceFile in base.EnumerateFiles(context))
+            using (var fileTransform = new CsJsFileTransform())
             {
-                if (fileTransform.IsFileForConversion(sourceFile.FullName, true))
+                foreach (var sourceFile in base.EnumerateFiles(context))
                 {
-                    fileTransform.RefreshConversion(sourceFile.FullName, true);
-                    yield return new FileInfo(fileTransform.GetConvertedFileName(sourceFile.FullName, true));
-                }
-                else
-                {
-                    yield return sourceFile;
+                    if (fileTransform.IsFileForConversion(sourceFile.FullName, true))
+                    {
+                        fileTransform.RefreshConversion(sourceFile.FullName, true);
+                        yield return new FileInfo(fileTransform.GetConvertedFileName(sourceFile.FullName, true));
+                    }
+                    else
+                    {
+                        yield return sourceFile;
+                    }
                 }
             }
         }

@@ -9,8 +9,6 @@ namespace CsJsConversion
 {
     public abstract class JsContentHelpersBase : JsContentGeneratorBase
     {
-        private StringBuilder buffer;
-
         protected JsContentHelpersBase()
         {
             CSharp = new CSharp();

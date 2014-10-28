@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>CsJsConverter</id>
+        <version>4.0.0.0</version>
+        <title>CsJsConversion</title>
+        <authors>talib-k</authors>
+        <owners>NA</owners>
+        <projectUrl>https://github.com/talib-k/CsJsConverter/issues</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>CsJsConversion</description>
+        <copyright>MIT License</copyright>
+        <language>en-US</language>
+    </metadata>
+    <files>
+        <file src="..\CsJsConverter\bin\Debug\CsJsConversion.dll" target="lib\net40\CsJsConversion.dll" />
+        <file src="content\Views\Js\Web.Config" target="content\Views\Js\Web.Config" />
+    </files>
+</package>

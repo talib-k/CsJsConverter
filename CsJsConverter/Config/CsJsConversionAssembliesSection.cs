@@ -19,10 +19,22 @@ namespace CsJsConversion.Config
         private bool loadReferencedAssembliesSet = false;
         private bool loadReferencedAssemblies = true;
 
-        [ConfigurationProperty("loadReferencedAssemblies", IsRequired = true, DefaultValue = null)]
+        [ConfigurationProperty("loadReferencedAssemblies", IsRequired = false, DefaultValue = null)]
         public bool LoadReferencedAssemblies
         {
-            get { return loadReferencedAssembliesSet ? loadReferencedAssemblies : (bool)this[loadReferencedAssembliesCfg]; }
+            get
+            {
+                if (loadReferencedAssembliesSet)
+                {
+                    return loadReferencedAssemblies;
+                }
+                var tempVal = this[loadReferencedAssembliesCfg];
+                if (tempVal == null)
+                {
+                    return loadReferencedAssemblies;
+                }
+                return (bool)tempVal;
+            }
             set
             {
                 loadReferencedAssemblies = value;
@@ -31,7 +43,7 @@ namespace CsJsConversion.Config
         }
 
 
-        [ConfigurationProperty("", IsRequired = true, IsDefaultCollection = true)]
+        [ConfigurationProperty("", IsRequired = false, IsDefaultCollection = true)]
         public CsJsConversionReferencedAssemblyCollection List
         {
             get { return (CsJsConversionReferencedAssemblyCollection)this[""]; }
@@ -53,7 +65,6 @@ namespace CsJsConversion.Config
 
         public class CsJsConversionAssembly : ConfigurationElement
         {
-            //Make sure to set IsKey=true for property exposed as the GetElementKey above
             [ConfigurationProperty("name", IsKey = true, IsRequired = true)]
             public string Name
             {

@@ -6,6 +6,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "TestApplication\TestApplication.csproj", "{37A497FF-132B-40C6-AD69-2E594F3D2B06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGetPackage", "NuGetPackage\NuGetPackage.csproj", "{6CF48AC7-8045-4754-8F5D-8D699085FACC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B433B8AB-B823-4DD6-85DE-8A4C088E8978} = {B433B8AB-B823-4DD6-85DE-8A4C088E8978}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsJsConversionTests", "CsJsConversionTests\CsJsConversionTests.csproj", "{8505EECE-76CE-4FE7-990C-A6823C7CE99A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +44,14 @@ Global
 		{6CF48AC7-8045-4754-8F5D-8D699085FACC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6CF48AC7-8045-4754-8F5D-8D699085FACC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{6CF48AC7-8045-4754-8F5D-8D699085FACC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{8505EECE-76CE-4FE7-990C-A6823C7CE99A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8505EECE-76CE-4FE7-990C-A6823C7CE99A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8505EECE-76CE-4FE7-990C-A6823C7CE99A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{8505EECE-76CE-4FE7-990C-A6823C7CE99A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{8505EECE-76CE-4FE7-990C-A6823C7CE99A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8505EECE-76CE-4FE7-990C-A6823C7CE99A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8505EECE-76CE-4FE7-990C-A6823C7CE99A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{8505EECE-76CE-4FE7-990C-A6823C7CE99A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

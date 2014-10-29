@@ -26,7 +26,6 @@ namespace CsJsConversion.Utils
         public string[] NamespacesToAdd { get; set; }
         public string[] CustomAssembliesToLoad { get; set; }
         public bool LoadReferencedAssemblies { get; set; }
-        public bool RemoveScriptTags { get; set; }
         public string SourceFileExtension { get; set; }
 
         public static ConversionParameters CreateForFile(FileInfo sourceFile, Configuration configuration)
@@ -37,28 +36,25 @@ namespace CsJsConversion.Utils
                 NamespacesToAdd = GetNamespacesToAdds(configuration),
                 CustomAssembliesToLoad = GetCustomAssembliesToLoad(configuration),
                 LoadReferencedAssemblies = IsLoadReferencedAssembliesSet(configuration),
-                RemoveScriptTags = IsRemoveScriptTagsSet(configuration),
                 SourceFileExtension = sourceFile.Extension.Replace(".", string.Empty)
+            };
+        }
+
+        public static ConversionParameters CreateSimple()
+        {
+            return new ConversionParameters()
+            {
+                BaseClass = typeof(JsContentGeneratorBase),
+                LoadReferencedAssemblies = true,
+                SourceFileExtension = "cshtml",
+                NamespacesToAdd = new string[0],
+                CustomAssembliesToLoad = new string[0]
             };
         }
 
         public RazorCodeLanguage GetCodeLanguage()
         {
             return RazorCodeLanguage.GetLanguageByExtension(SourceFileExtension);
-        }
-
-        private static bool IsRemoveScriptTagsSet(Configuration configuration)
-        {
-            if (configuration == null)
-            {
-                return true;
-            }
-            var configSectionGroup = configuration.SectionGroups[CsJsSectionGroup.GroupName] as CsJsSectionGroup;
-            if (configSectionGroup == null || configSectionGroup.Conversion == null)
-            {
-                return true;
-            }
-            return configSectionGroup.Conversion.Params.RemoveScriptTags;
         }
 
         private static string[] GetNamespacesToAdds(Configuration configuration)

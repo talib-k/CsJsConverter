@@ -59,7 +59,7 @@ namespace CsJsConversion.Utils
             var compiledAssembly = compilerResults.CompiledAssembly;
             var templateInstance = (JsContentGeneratorBase)compiledAssembly.CreateInstance(DynamicClassFullName);
 
-            return ProcessResult(templateInstance.GetContent(), configuration.RemoveScriptTags);
+            return ProcessResult(templateInstance.GetContent());
         }
 
         private static StringReader ReadTemplateContent(string template)
@@ -69,19 +69,16 @@ namespace CsJsConversion.Utils
             return new StringReader(result);
         }
 
-        private static string ProcessResult(string output, bool removeScriptTags)
+        private static string ProcessResult(string output)
         {
             var result = output;
-            if (removeScriptTags)
-            {
-                result = RemoveScriptTags(result);
-            }
+            result = RemoveScriptTags(result);
             return result;
         }
 
         private static string RemoveScriptTags(string template)
         {
-            var result = string.Empty;
+            var result = template;
             var lines = Regex.Split(template, "\r\n|\r|\n");
 
             var openingScriptTagLine = FindOpeningScriptTag(lines);
@@ -89,6 +86,7 @@ namespace CsJsConversion.Utils
 
             if (openingScriptTagLine != -1 && closingScriptTagLine != -1)
             {
+                result = string.Empty;
                 for (int i = 0; i < lines.Length; i++)
                 {
                     if (i != openingScriptTagLine && i != closingScriptTagLine)
@@ -150,9 +148,12 @@ namespace CsJsConversion.Utils
                     compilerParameters.ReferencedAssemblies.Add(GetAssemblyLocation(referencedAssembly));
                 }
             }
-            foreach (var assembly in assembliesToLoad)
+            if (assembliesToLoad != null)
             {
-                compilerParameters.ReferencedAssemblies.Add(Assembly.Load(assembly).Location);
+                foreach (var assembly in assembliesToLoad)
+                {
+                    compilerParameters.ReferencedAssemblies.Add(Assembly.Load(assembly).Location);
+                }
             }
 
             compilerParameters.GenerateInMemory = true;
@@ -177,9 +178,12 @@ namespace CsJsConversion.Utils
         {
             host.NamespaceImports.Add("System");
             host.NamespaceImports.Add("System.Web");
-            foreach (var @namespace in namespacesToAdd)
+            if (namespacesToAdd != null)
             {
-                host.NamespaceImports.Add(@namespace);
+                foreach (var @namespace in namespacesToAdd)
+                {
+                    host.NamespaceImports.Add(@namespace);
+                }
             }
         }
 

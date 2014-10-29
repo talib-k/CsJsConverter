@@ -8,9 +8,9 @@ using System.Web;
 
 namespace CsJsConversion.BaseClassMembers
 {
-    public class EnumInfo
+    public class EnumInfo<T> where T : struct, IConvertible
     {
-        public virtual IHtmlString Text<T>(T @enum) where T : struct, IConvertible
+        public virtual IHtmlString GetText(T @enum)
         {
             if (!typeof(T).IsEnum)
             {
@@ -19,7 +19,7 @@ namespace CsJsConversion.BaseClassMembers
             return new HtmlString(@enum.ToString(CultureInfo.InvariantCulture));
         }
 
-        public virtual IHtmlString Value<T>(T @enum) where T : struct, IConvertible
+        public virtual IHtmlString GetValue(T @enum)
         {
             if (!typeof(T).IsEnum)
             {

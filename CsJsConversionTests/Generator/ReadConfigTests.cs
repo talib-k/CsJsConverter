@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NUnit.Framework;
 
-namespace CsJsConversion.Config
+namespace CsJsConversionTests.Generator
 {
-    public class CsJsConversionParamsSection : ConfigurationSection
+    [TestFixture]
+    public class ReadConfigTests
     {
     }
 }

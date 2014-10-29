@@ -16,13 +16,11 @@ namespace CsJsConversion.BaseClassMembers
             InitMvc();
         }
 
-        public EnumInfo Enum { get; private set; }
-
         public MvcInfo Mvc { get; private set; }
 
-        public virtual EnumInfo GetEnumInfo<T>()
+        public virtual EnumInfo<T> GetEnumInfo<T>() where T : struct, IConvertible
         {
-            return new EnumInfo();
+            return new EnumInfo<T>();
         }
 
         public virtual ClassInfo<T> GetClassInfo<T>()

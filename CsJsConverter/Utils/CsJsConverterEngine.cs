@@ -79,49 +79,39 @@ namespace CsJsConversion.Utils
         private static string RemoveScriptTags(string template)
         {
             var result = template;
-            var lines = Regex.Split(template, "\r\n|\r|\n");
 
-            var openingScriptTagLine = FindOpeningScriptTag(lines);
-            var closingScriptTagLine = FindClosingScriptTag(lines);
+            const string openingScriptTag = "<script>";
+            const string closingScriptTag = "</script>";
 
-            if (openingScriptTagLine != -1 && closingScriptTagLine != -1)
+            var openingScriptTagIndex = FindOpeningScriptTag(template, openingScriptTag);
+            var closingScriptTagIndex = FindClosingScriptTag(template, closingScriptTag);
+
+            if (closingScriptTagIndex != -1)
             {
-                result = string.Empty;
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    if (i != openingScriptTagLine && i != closingScriptTagLine)
-                    {
-                        result += lines[i] + Environment.NewLine;
-                    }
-                }
+                var stringBuilder = new StringBuilder();
+                stringBuilder.Append(result.Substring(0, openingScriptTagIndex));
+                var contentLength = closingScriptTagIndex - openingScriptTagIndex - openingScriptTag.Length;
+                stringBuilder.Append(result.Substring(openingScriptTagIndex + openingScriptTag.Length, contentLength));
+                stringBuilder.Append(result.Substring(closingScriptTagIndex + closingScriptTag.Length));
+                result = stringBuilder.ToString().Trim();
             }
             return result;
         }
 
-        private static int FindOpeningScriptTag(string[] lines)
+        private static int FindOpeningScriptTag(string template, string openingScriptTag)
         {
-            const string openingScriptTag = "<script>";
-            for (int i = 0; i < lines.Length; i++)
+            if (!string.IsNullOrEmpty(template))
             {
-                var line = lines[i];
-                if (!string.IsNullOrEmpty(line) && !line.StartsWith("@"))
-                {
-                    return (line.Trim() == openingScriptTag) ? i : -1;
-                }
+                return template.IndexOf(openingScriptTag, StringComparison.Ordinal);
             }
             return -1;
         }
 
-        private static int FindClosingScriptTag(string[] lines)
+        private static int FindClosingScriptTag(string template, string closingScriptTag)
         {
-            const string closingScriptTag = "</script>";
-            for (int i = lines.Length - 1; i >= 0; i--)
+            if (!string.IsNullOrEmpty(template) && template.Trim().EndsWith(closingScriptTag))
             {
-                var line = lines[i];
-                if (!string.IsNullOrEmpty(line))
-                {
-                    return (line.Trim() == closingScriptTag) ? i : -1;
-                }
+                return template.LastIndexOf(closingScriptTag, StringComparison.Ordinal);
             }
             return -1;
         }

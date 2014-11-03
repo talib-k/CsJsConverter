@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CsJsConversion.Config
 {
-    public class ConfigurationHelper
+    public class ConfigurationHelper : IDisposable
     {
         private readonly Dictionary<string, Configuration> cachedConfigurations = new Dictionary<string, Configuration>();
         private readonly List<string> createdFiles = new List<string>();

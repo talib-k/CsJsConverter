@@ -157,7 +157,7 @@ namespace CsJsConversion.FileUtils
         }
 
         private void Convert(FileInfo sourceFile, Configuration configuration, string outputDirectory)
-        {            
+        {
             Directory.CreateDirectory(outputDirectory);
 
             var outputPath = GetConvertedFileName(sourceFile.Name, outputDirectory);

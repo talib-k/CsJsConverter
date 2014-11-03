@@ -84,12 +84,28 @@ namespace CsJsConversionTests.Generator
         }
 
         [Test]
+        public void LanguageByExtensionTest()
+        {
+            var config = ConversionParameters.CreateSimple();
+            config.SourceFileExtension = "cshtml";
+            const string templateCs = @"@typeof(string)";
+            var result = CsJsConverterEngine.Convert(templateCs, config);
+            Assert.AreEqual("System.String", result);
+
+            //config.SourceFileExtension = "vbhtml";
+            //const string templateVb = @"@Code dim myMessage = ""Hello World"" End Code @myMessage";
+            //result = CsJsConverterEngine.Convert(templateVb, config);
+            //Assert.AreEqual("System.String", result);
+        }
+
+        
+
+        [Test]
         public void RemoveScriptTags()
         {
             var config = ConversionParameters.CreateSimple();
-            const string expectedResult =
-@"test
-";
+            var expectedResult =
+@"test";
 
             var template =
 @"<script>
@@ -106,14 +122,19 @@ test
             result = CsJsConverterEngine.Convert(template, config);
             Assert.AreEqual(expectedResult, result);
 
+            expectedResult =
+@"dsadasdsadas
+<script>
+test";
 
             template =
-@"dsadasdsadas
+@"<script>
+dsadasdsadas
 <script>
 test
 </script>";
             result = CsJsConverterEngine.Convert(template, config);
-            Assert.AreEqual(template, result);
+            Assert.AreEqual(expectedResult, result);
         }
 
         public abstract class TestBaseClass : JsContentGeneratorBase { }
